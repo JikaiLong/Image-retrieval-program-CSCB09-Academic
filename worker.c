@@ -98,7 +98,7 @@ float compare_images(Image *img1, char *filename) {
 * - keep track of the image that is most similar 
 * - write a struct CompRecord with the info for the most similar image to out_fd
 */
-CompRecord process_dir(char *dirname, Image *img){
+CompRecord process_dir(char *dirname, Image *img, int out_fd){
     // initialize the path of sub directory 
     char path[PATHLENGTH];
     char temp_path[PATHLENGTH] = "";
