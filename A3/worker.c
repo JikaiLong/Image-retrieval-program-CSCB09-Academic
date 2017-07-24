@@ -18,6 +18,7 @@
 Image* read_image(char *filename)
 {
         Image *img;
+        img = malloc(sizeof(Image));
         char buff[10];
         int width;
         int height;
@@ -27,14 +28,14 @@ Image* read_image(char *filename)
         int g;
         int b;
         FILE *f = fopen(filename, "r");
-        fscanf(f,"%c", &buff);
-        if(buff != "P3"){
+        fscanf(f,"%s", buff);
+        if(strcmp(buff,"P3") != 0){
             return NULL;
         }
 
         fscanf(f, "%d %d %d", &width, &height, &maxVal);
         maxSize = width*height;
-        Pixel pArray[maxSize];
+        Pixel *pArray = malloc(sizeof(Pixel)*maxSize);
         for(int i = 0; i < maxSize; i++){
             fscanf(f, "%d %d %d", &r, &g, &b);
             Pixel pixel;
@@ -46,8 +47,8 @@ Image* read_image(char *filename)
         }
         img->width = width;
         img->height = height;
-        img->max_value = maxval;
-        img->p = &pArray;
+        img->max_value = maxVal;
+        img->p = pArray;
         fclose(f);
         return img;
 }
