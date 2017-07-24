@@ -72,7 +72,7 @@ CompRecord process_dir(char *dirname, Image *img){
 		exit(1);
 	}
 	// loop through each file in the sub directory
-	strit dirent *dp;
+	struct dirent *dp;
         CompRecord CRec;
 	while((dp = readdir(dirp)) != NULL){
 		// strncpy the path of the file to the root 
