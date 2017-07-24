@@ -30,7 +30,9 @@ int main(int argc, char **argv) {
 	     fprintf(stderr, "Usage: queryone [-d DIRECTORY_NAME] FILE_NAME\n");
         } else
              image_file = argv[optind];
-
+	// add selected image to create an image struct
+	     Image *select_image = read_image(image_file);
+		
 	// Open the directory provided by the user (or current working directory)
 	
 	DIR *dirp;
@@ -46,7 +48,7 @@ int main(int argc, char **argv) {
 		
 	struct dirent *dp;
         CompRecord CRec;
-	CompRecord *Temp;
+	CompRecord Temp;
 
 	while((dp = readdir(dirp)) != NULL) {
 
@@ -70,11 +72,11 @@ int main(int argc, char **argv) {
 		// Only call process_dir if it is a directory
 		// Otherwise ignore it.
 		if(S_ISDIR(sbuf.st_mode)) {
-                        *Temp = process_dir(path, image_file);
+                        Temp = process_dir(path, select_image);
 			// find the largest to store to CRec;
-			if(Temp->distance > CRec.distance){
-				strcpy(CRec.filename, Temp->filename);
-				CRec.distance = Temp->distance;
+			if(Temp.distance > CRec.distance){
+				strcpy(CRec.filename, Temp.filename);
+				CRec.distance = Temp.distance;
 			}
 		}
 		
