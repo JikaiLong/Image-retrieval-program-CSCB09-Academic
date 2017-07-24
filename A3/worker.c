@@ -18,6 +18,37 @@
 Image* read_image(char *filename)
 {
         Image *img;
+        char buff[10];
+        int width;
+        int height;
+        int maxVal;
+        int maxSize;
+        int r;
+        int g;
+        int b;
+        FILE *f = fopen(filename, "r");
+        fscanf(f,"%s", &buff);
+        if(buff != "P3"){
+            return NULL;
+        }
+
+        fscanf(f, "%d %d %d", &width, &height, &maxval);
+        maxSize = width*height;
+        Pixel pArray[maxSize];
+        for(int i = 0; i < maxSize; i++){
+            fscanf(f, "%d %d %d", &r, &g, &b);
+            Pixel pixel;
+            pixel->red = r;
+            pixel->green = g;
+            pixel->blue = b;
+            pArray[i] = pixel;
+
+        }
+        img->width = width;
+        img->height = height;
+        img->max_value = maxval;
+        img->p = &pArray;
+        fclose(f);
         return img;
 }
 
@@ -49,7 +80,14 @@ float eucl_distance (Pixel p1, Pixel p2) {
  */
 
 float compare_images(Image *img1, char *filename) {
-       return 0;
+        Image *img2 = read_image(filename);
+        int total = 0;
+        int maxPix = img1->width* img1->height;
+        for(int i = 0; i < maxPix; i++){
+            total = total+eucl_distance(img1->p[i],img2->p[i]);
+        }
+        int average = total/maxPix;
+        return 0;
 }
 
 /* process all files in one directory and find most similar image among them
@@ -60,45 +98,45 @@ float compare_images(Image *img1, char *filename) {
 * - write a struct CompRecord with the info for the most similar image to out_fd
 */
 CompRecord process_dir(char *dirname, Image *img){
-	// initialize the path of sub directory 
-	char path[PATHLENGTH];
-	DIR *dirp;
-	// initialize the max_distance in the directory
-	float max_distance = FLT_MAX;
-	float temp = FLT_MAX;
-	// if open sub directory fails, exit with error report
-	if((dirp = opendir(dirname)) == NULL) {
-		perror("opendir");
-		exit(1);
-	}
-	// loop through each file in the sub directory
-	struct dirent *dp;
+    // initialize the path of sub directory 
+    char path[PATHLENGTH];
+    DIR *dirp;
+    // initialize the max_distance in the directory
+    float max_distance = FLT_MAX;
+    float temp = FLT_MAX;
+    // if open sub directory fails, exit with error report
+    if((dirp = opendir(dirname)) == NULL) {
+        perror("opendir");
+        exit(1);
+    }
+    // loop through each file in the sub directory
+    struct dirent *dp;
         CompRecord CRec;
-	while((dp = readdir(dirp)) != NULL){
-		// strncpy the path of the file to the root 
-		strncpy(path, dirname, PATHLENGTH);
-		strncat(path, "/", PATHLENGTH - strlen(path) - 1);
-		strncat(path, dp->d_name, PATHLENGTH - strlen(path) - 1);
-		// check if the path is correct
-		struct stat sbuf;
-		if(stat(path, &sbuf) == -1){
-		perror("stat");
-		exit(1);
-		}
-		// check if the file is a directory or it is regular file
-		if(S_ISREG(sbuf.st_mode)) {
-				// if it is a regular file, call compare_image 
-				temp = compare_images(img, path);
-				// let max_distance stores the largest distance
-				if(temp > max_distance){
-					max_distance = temp;
-				}
-		}
-				
-		}
-		// write the file name and max_distance to the return result
-		strcpy(CRec.filename, path);
-		CRec.distance = max_distance;
-		 
+    while((dp = readdir(dirp)) != NULL){
+        // strncpy the path of the file to the root 
+        strncpy(path, dirname, PATHLENGTH);
+        strncat(path, "/", PATHLENGTH - strlen(path) - 1);
+        strncat(path, dp->d_name, PATHLENGTH - strlen(path) - 1);
+        // check if the path is correct
+        struct stat sbuf;
+        if(stat(path, &sbuf) == -1){
+        perror("stat");
+        exit(1);
+        }
+        // check if the file is a directory or it is regular file
+        if(S_ISREG(sbuf.st_mode)) {
+                // if it is a regular file, call compare_image 
+                temp = compare_images(img, path);
+                // let max_distance stores the largest distance
+                if(temp > max_distance){
+                    max_distance = temp;
+                }
+        }
+                
+        }
+        // write the file name and max_distance to the return result
+        strcpy(CRec.filename, path);
+        CRec.distance = max_distance;
+         
         return CRec;
 }
