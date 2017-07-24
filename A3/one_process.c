@@ -72,7 +72,7 @@ int main(int argc, char **argv) {
 		// Only call process_dir if it is a directory
 		// Otherwise ignore it.
 		if(S_ISDIR(sbuf.st_mode)) {
-                        Temp = process_dir(path, select_image);
+                        Temp = process_dir(path, select_image, 0);
 			// find the largest to store to CRec;
 			if(Temp.distance > CRec.distance){
 				strcpy(CRec.filename, Temp.filename);
