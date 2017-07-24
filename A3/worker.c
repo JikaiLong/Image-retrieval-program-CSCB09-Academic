@@ -101,6 +101,7 @@ float compare_images(Image *img1, char *filename) {
 CompRecord process_dir(char *dirname, Image *img){
     // initialize the path of sub directory 
     char path[PATHLENGTH];
+    char temp_path[PATHLENGTH] = "";
     DIR *dirp;
     // initialize the max_distance in the directory
     float max_distance = FLT_MAX;
@@ -125,18 +126,19 @@ CompRecord process_dir(char *dirname, Image *img){
         exit(1);
         }
         // check if the file is a directory or it is regular file
-        if(S_ISREG(sbuf.st_mode)) {
+        if((S_ISDIR(sbuf.st_mode)) != 1) {
                 // if it is a regular file, call compare_image 
                 temp = compare_images(img, path);
-                // let max_distance stores the largest distance
-                if(temp > max_distance){
+                // let max_distance stores the smallest distance
+                if(temp < max_distance){
                     max_distance = temp;
+		    strcpy(temp_path, path);
                 }
         }
                 
         }
         // write the file name and max_distance to the return result
-        strcpy(CRec.filename, path);
+        strcpy(CRec.filename, temp_path);
         CRec.distance = max_distance;
          
         return CRec;
