@@ -27,20 +27,20 @@ Image* read_image(char *filename)
         int g;
         int b;
         FILE *f = fopen(filename, "r");
-        fscanf(f,"%s", &buff);
+        fscanf(f,"%c", &buff);
         if(buff != "P3"){
             return NULL;
         }
 
-        fscanf(f, "%d %d %d", &width, &height, &maxval);
+        fscanf(f, "%d %d %d", &width, &height, &maxVal);
         maxSize = width*height;
         Pixel pArray[maxSize];
         for(int i = 0; i < maxSize; i++){
             fscanf(f, "%d %d %d", &r, &g, &b);
             Pixel pixel;
-            pixel->red = r;
-            pixel->green = g;
-            pixel->blue = b;
+            pixel.red = r;
+            pixel.green = g;
+            pixel.blue = b;
             pArray[i] = pixel;
 
         }
@@ -87,7 +87,7 @@ float compare_images(Image *img1, char *filename) {
             total = total+eucl_distance(img1->p[i],img2->p[i]);
         }
         int average = total/maxPix;
-        return 0;
+        return average;
 }
 
 /* process all files in one directory and find most similar image among them
