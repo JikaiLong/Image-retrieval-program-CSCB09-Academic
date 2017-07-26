@@ -14,7 +14,7 @@ int main(int argc, char **argv) {
 	char path[PATHLENGTH];
 	char *startdir = ".";
         char *image_file = NULL;
-	
+
 	while((ch = getopt(argc, argv, "d:")) != -1) {
 		switch (ch) {
 			case 'd':
