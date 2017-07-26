@@ -16,26 +16,36 @@
  */
 
 Image* read_image(char *filename)
-{
+{   
+        //Create and allocate space for the return image
         Image *img;
         img = malloc(sizeof(Image));
+        //Set a buffer for checking the magic P3
         char buff[10];
+        //Create vars for storing width height and maximum value of image
         int width;
         int height;
         int maxVal;
         int maxSize;
+        // Create vars for red blue green values of each pixel
         int r;
         int g;
         int b;
+        // Open the file being processed
         FILE *f = fopen(filename, "r");
+        // Check if the starting image text is P3 to ensure we're reading the right file
         fscanf(f,"%s", buff);
         if(strcmp(buff,"P3") != 0){
             return NULL;
         }
 
+        //Grab the width heigh and maximum value and store to created vars
         fscanf(f, "%d %d %d", &width, &height, &maxVal);
+        //Get total number of pixels and store into maximum size var
         maxSize = width*height;
+        //Allocate space for the Pixel Array to store individual pixels into
         Pixel *pArray = malloc(sizeof(Pixel)*maxSize);
+        //Loop Through each pixel and create Pixel struct for each and store into array
         for(int i = 0; i < maxSize; i++){
             fscanf(f, "%d %d %d", &r, &g, &b);
             Pixel pixel;
@@ -45,11 +55,14 @@ Image* read_image(char *filename)
             pArray[i] = pixel;
 
         }
+        //Store needed values to the image struct
         img->width = width;
         img->height = height;
         img->max_value = maxVal;
         img->p = pArray;
+        // Properly close opened file
         fclose(f);
+        //Return image
         return img;
 }
 
@@ -81,13 +94,18 @@ float eucl_distance (Pixel p1, Pixel p2) {
  */
 
 float compare_images(Image *img1, char *filename) {
+        //read the given file
         Image *img2 = read_image(filename);
+        //create vars for calculation
         int total = 0;
-        int maxPix = img1->width* img1->height;
+        int maxPix = img1->width*img1->height;
+        //loop through each pixel and calculate euclidian distance and get total
         for(int i = 0; i < maxPix; i++){
             total = total+eucl_distance(img1->p[i],img2->p[i]);
         }
+        //get average distance
         int average = total/maxPix;
+        //return average
         return average;
 }
 
@@ -132,7 +150,7 @@ CompRecord process_dir(char *dirname, Image *img, int out_fd){
                 // let max_distance stores the smallest distance
                 if(temp < max_distance){
                     max_distance = temp;
-		    strcpy(temp_path, path);
+            strcpy(temp_path, path);
                 }
         }
                 
