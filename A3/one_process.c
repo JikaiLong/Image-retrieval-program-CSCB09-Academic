@@ -48,7 +48,9 @@ int main(int argc, char **argv) {
 		
 	struct dirent *dp;
         CompRecord CRec;
+	CRec.distance = FLT_MAX;
 	CompRecord Temp;
+	Temp.distance = FLT_MAX;
 
 	while((dp = readdir(dirp)) != NULL) {
 
@@ -74,7 +76,7 @@ int main(int argc, char **argv) {
 		if(S_ISDIR(sbuf.st_mode)) {
                         Temp = process_dir(path, select_image, 0);
 			// find the largest to store to CRec;
-			if(Temp.distance > CRec.distance){
+			if(Temp.distance < CRec.distance){
 				strcpy(CRec.filename, Temp.filename);
 				CRec.distance = Temp.distance;
 			}
