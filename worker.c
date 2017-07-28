@@ -162,6 +162,8 @@ CompRecord process_dir(char *dirname, Image *img, int out_fd){
         // write the file name and max_distance to the return result
         strcpy(CRec.filename, temp_path);
         CRec.distance = max_distance;
+	// write the result to the pipe
+	write(out_fd, &CRec, sizeof(CRec));
          
         return CRec;
 }
