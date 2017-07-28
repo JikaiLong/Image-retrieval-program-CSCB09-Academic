@@ -33,13 +33,12 @@ Image* read_image(char *filename)
         int b;
         // Open the file being processed
         FILE *f = fopen(filename, "r");
-        // Check if the starting image text is P3 to ensure we're reading the right file
+        // Check if the starting image text is P3 to ensure we're reading the right file else just return NULL
         fscanf(f,"%s", buff);
         if(strcmp(buff,"P3") != 0){
             return NULL;
         }
-
-        //Grab the width heigh and maximum value and store to created vars
+        //Grab the width height and maximum value and store to created vars
         fscanf(f, "%d %d %d", &width, &height, &maxVal);
         //Get total number of pixels and store into maximum size var
         maxSize = width*height;
@@ -97,14 +96,19 @@ float compare_images(Image *img1, char *filename) {
         //read the given file
         Image *img2 = read_image(filename);
         //create vars for calculation
+        int average;
         int total = 0;
         int maxPix = img1->width*img1->height;
+        if(img2==NULL){
+            average =  -1;
+            return average;
+        }
         //loop through each pixel and calculate euclidian distance and get total
         for(int i = 0; i < maxPix; i++){
             total = total+eucl_distance(img1->p[i],img2->p[i]);
         }
         //get average distance
-        int average = total/maxPix;
+        average = total/maxPix;
         //return average
         return average;
 }
@@ -148,7 +152,7 @@ CompRecord process_dir(char *dirname, Image *img, int out_fd){
                 // if it is a regular file, call compare_image 
                 temp = compare_images(img, path);
                 // let max_distance stores the smallest distance
-                if(temp < max_distance){
+                if(temp != -1 && temp < max_distance){
                     max_distance = temp;
             strcpy(temp_path, path);
                 }
