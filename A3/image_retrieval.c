@@ -37,6 +37,7 @@ int main(int argc, char **argv) {
 	// Open the directory provided by the user (or current working directory)
 	
 	DIR *dirp;
+	DIR *dirp2;
 	if((dirp = opendir(startdir)) == NULL) {
 		perror("opendir");
 		exit(1);
@@ -48,6 +49,7 @@ int main(int argc, char **argv) {
 	*/
 		
 	struct dirent *dp;
+	struct dirent *dp2;
         CompRecord CRec;
 	CRec.distance = FLT_MAX;
 	CompRecord Temp;
@@ -82,7 +84,8 @@ int main(int argc, char **argv) {
 	
 
 	// reset the current dir and re-read it again to run process_dir
-	if((dirp = opendir(startdir)) == NULL) {
+	
+	if((dirp2 = opendir(startdir)) == NULL) {
 		perror("opendir");
 		exit(1);
 	} 
@@ -96,16 +99,16 @@ int main(int argc, char **argv) {
 	// read each sub directory in the current directory and fork process to 
 	// run process_dir
 	int i = -1;
-	while((dp = readdir(dirp)) != NULL) {
+	while((dp2 = readdir(dirp2)) != NULL) {
 		
-		if(strcmp(dp->d_name, ".") == 0 || 
-		   strcmp(dp->d_name, "..") == 0 ||
-		   strcmp(dp->d_name, ".svn") == 0){
+		if(strcmp(dp2->d_name, ".") == 0 || 
+		   strcmp(dp2->d_name, "..") == 0 ||
+		   strcmp(dp2->d_name, ".svn") == 0){
 			continue;
 		}
 		strncpy(path, startdir, PATHLENGTH);
 		strncat(path, "/", PATHLENGTH - strlen(path) - 1);
-		strncat(path, dp->d_name, PATHLENGTH - strlen(path) - 1);
+		strncat(path, dp2->d_name, PATHLENGTH - strlen(path) - 1);
 		struct stat sbuf;
 		if(stat(path, &sbuf) == -1) {
 			//This should only fail if we got the path wrong
