@@ -96,8 +96,8 @@ float compare_images(Image *img1, char *filename) {
         //read the given file
         Image *img2 = read_image(filename);
         //create vars for calculation
-        int average;
-        int total = 0;
+        float average;
+        float total = 0;
         int maxPix = img1->width*img1->height;
         if(img2==NULL){
             average =  -1;
@@ -163,7 +163,7 @@ CompRecord process_dir(char *dirname, Image *img, int out_fd){
         strcpy(CRec.filename, temp_path);
         CRec.distance = max_distance;
 	// write the result to the pipe
-	write(out_fd, &CRec, sizeof(CRec));
+	write(out_fd, &CRec, sizeof(CompRecord));
          
         return CRec;
 }
