@@ -51,8 +51,10 @@ int main(int argc, char **argv) {
 	struct dirent *dp;
 	struct dirent *dp2;
         CompRecord CRec;
+	strcpy(CRec.filename, "");
 	CRec.distance = FLT_MAX;
 	CompRecord Temp;
+	strcpy(Temp.filename, "");
 	Temp.distance = FLT_MAX;
 	dir_number = 0;
 	while((dp = readdir(dirp)) != NULL) {
