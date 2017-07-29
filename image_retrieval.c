@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
 		}
 		
 	}
-	printf("the correct number of file in current dir is %d\n", dir_number);	
+	
 	
 
 	// reset the current dir and re-read it again to run process_dir
@@ -95,8 +95,9 @@ int main(int argc, char **argv) {
 	
 	// read each sub directory in the current directory and fork process to 
 	// run process_dir
+	int i = -1;
 	while((dp = readdir(dirp)) != NULL) {
-
+		
 		if(strcmp(dp->d_name, ".") == 0 || 
 		   strcmp(dp->d_name, "..") == 0 ||
 		   strcmp(dp->d_name, ".svn") == 0){
@@ -105,7 +106,6 @@ int main(int argc, char **argv) {
 		strncpy(path, startdir, PATHLENGTH);
 		strncat(path, "/", PATHLENGTH - strlen(path) - 1);
 		strncat(path, dp->d_name, PATHLENGTH - strlen(path) - 1);
-
 		struct stat sbuf;
 		if(stat(path, &sbuf) == -1) {
 			//This should only fail if we got the path wrong
@@ -113,20 +113,63 @@ int main(int argc, char **argv) {
 			perror("stat");
 			exit(1);
 		} 
-
 		// Only call process_dir if it is a directory
 		// Otherwise ignore it.
 		if(S_ISDIR(sbuf.st_mode)) {
-                        Temp = process_dir(path, select_image, 6);
-			// find the largest to store to CRec;
-			if(Temp.distance < CRec.distance){
-				strcpy(CRec.filename, Temp.filename);
-				CRec.distance = Temp.distance;
+			i ++;
+			// call pipe for each sub dir
+			if((pipe(pipe_fd[i])) == -1){
+				perror("pipe");
+				exit(1);
 			}
-		}
-		
-	}
+			// call fork
+			int result = fork();
+			if(result <0) { // case: a system call error
+				perror("fork");
+				exit(1);
+			}
+			else if(result == 0){ // case: a child process
+				if(close(pipe_fd[i][0]) == -1) {
+				perror("close reading end from inside child");
+				}
+				// close all reading ends
+				int child_no;
+				for(child_no =1; child_no < i; child_no++){
+					if(close(pipe_fd[child_no][0]) == -1){
+						perror("close reading ends of previously forked child");
+					}
+				}
+				// call process_dir and pass the struct to the pipe
+                        	process_dir(path, select_image, pipe_fd[i][1]);
+				// done with pipe and close it
+				if(close(pipe_fd[i][1]) == -1) {
+					perror("close pipe after writing");
+				}
+				// exist so no more children will be created
+				exit(0);
+				}
+			else{	// if the process is a parent
+			// close the writing end of the pipe
+			if(close(pipe_fd[i][1]) == -1){
+				perror("close writing end of pipe in parent");
+					}
 	
+				}
+		
+			}
+	}
+	// only parent goes here
+	// find the largest to store to CRec;
+	for(int k = 0; k < dir_number; k ++){
+		if(read(pipe_fd[k][0], &Temp, sizeof(CompRecord)) == -1){
+			perror("reading from pipe from a child");
+			}
+
+		if(Temp.distance < CRec.distance){
+			strcpy(CRec.filename, Temp.filename);
+			CRec.distance = Temp.distance;
+			}
+	}
         printf("The most similar image is %s with a distance of %f\n", CRec.filename, CRec.distance);
 	
 	return 0;
